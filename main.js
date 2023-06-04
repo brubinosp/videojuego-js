@@ -4,6 +4,11 @@
 
 const canvas = document.querySelector("#game");
 const context = canvas.getContext("2d");
+const buttonUp = document.querySelector("#up");
+const buttonLeft = document.querySelector("#left");
+const buttonRight = document.querySelector("#right");
+const buttonDown = document.querySelector("#down");
+const spanLives = document.querySelector("#lives");
 
 window.addEventListener("load", setCanvasSize);
 window.addEventListener("resize", setCanvasSize);
@@ -35,12 +40,13 @@ function setCanvasSize() {
 }
 function startGame() {
   context.font = elementsSize + "px verdana";
-  context.textAlign = "end"; 
+  context.textAlign = "end";
   const mapsArray = maps[level];
-  if(!mapsArray) {
+  if (!mapsArray) {
     gameWin();
     return;
   }
+  showLives();
   context.clearRect(0, 0, canvasSize, canvasSize);
   const map = mapsArray.match(/[IXO\-]+/g).map((row) => row.split(""));
   bombsPositions = [];
@@ -75,7 +81,7 @@ function movePlayer() {
   const playerGiftCollisionY =
     playerPosition.y.toFixed(3) == giftPosition.y.toFixed(3);
   if (playerGiftCollisionX && playerGiftCollisionY) {
-    console.log("Subiste de nivel!")
+    console.log("Subiste de nivel!");
     level++;
     startGame();
   }
@@ -95,7 +101,7 @@ function gameWin() {
 }
 function levelFailed() {
   lives--;
-  if(lives <= 0) {
+  if (lives <= 0) {
     level = 0;
     lives = 3;
   }
@@ -103,11 +109,11 @@ function levelFailed() {
   playerPosition.y = undefined;
   startGame();
 }
-
-const buttonUp = document.querySelector("#up");
-const buttonLeft = document.querySelector("#left");
-const buttonRight = document.querySelector("#right");
-const buttonDown = document.querySelector("#down");
+function showLives() {
+  const hearts = Array(lives).fill(emojis["HEART"]);
+  spanLives.innerHTML = ""; // Para limpiar el span y evitar repeticion de corazones
+  hearts.forEach((heart) => (spanLives.append(heart)));
+}
 
 buttonUp.addEventListener("click", moveUp);
 buttonLeft.addEventListener("click", moveLeft);
