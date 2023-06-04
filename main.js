@@ -24,7 +24,17 @@ function setCanvasSize() {
 function startGame() {
   context.font = elementsSize * 1 + "px verdana";
   context.textAlign = "end";
-  for (let index = 1; index < 10; index++) {
-    context.fillText(emojis["X"], elementsSize * index, elementsSize);
-  }
+
+  // const mapsRow = maps[0].trim().split("\n"); const map = mapsRow.map((row) => row.trim().split(""));
+  const map = maps[0].match(/[IXO\-]+/g).map((row) => row.split(""));
+
+  context.clearRect(0,0,canvasSize, canvasSize);
+  map.forEach((row, rowIndex) => {
+    row.forEach((col, colIndex) => {
+      const emoji = emojis[col];
+      const posX = elementsSize * (colIndex + 1 + 0.2);
+      const posY = elementsSize * ((rowIndex + 1) * 0.98);
+      context.fillText(emoji, posX, posY);
+    });
+  });
 }
