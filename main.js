@@ -23,8 +23,14 @@ let lives = 3;
 let timeStart;
 let timePlayer;
 let timeInterval;
+let moveX = 0;
+let moveY = 0;
 
 const playerPosition = {
+  x: undefined,
+  y: undefined,
+};
+const initialPlayerPosition = {
   x: undefined,
   y: undefined,
 };
@@ -36,12 +42,14 @@ let bombsPositions = [];
 
 function setCanvasSize() {
   window.innerHeight > window.innerWidth
-    ? (canvasSize = Math.round(window.innerWidth * 0.8))
-    : (canvasSize = Math.round(window.innerHeight * 0.8));
+    ? (canvasSize = Math.round(window.innerWidth * 0.7))
+    : (canvasSize = Math.round(window.innerHeight * 0.7));
   canvas.setAttribute("width", canvasSize);
   canvas.setAttribute("height", canvasSize);
   elementsSize = canvasSize / 10;
   startGame();
+  playerPosition.x = initialPlayerPosition.x + elementsSize * moveX;
+  playerPosition.y = initialPlayerPosition.y + elementsSize * moveY;
 }
 
 function startGame() {
@@ -67,6 +75,8 @@ function startGame() {
       const posX = elementsSize * (colIndex + 1);
       const posY = elementsSize * (rowIndex + 1);
       if (col === "O") {
+        initialPlayerPosition.x = posX;
+        initialPlayerPosition.y = posY;
         if (!playerPosition.x && !playerPosition.y) {
           playerPosition.x = posX;
           playerPosition.y = posY;
@@ -92,8 +102,9 @@ function movePlayer() {
   const playerGiftCollisionY =
     playerPosition.y.toFixed(3) == giftPosition.y.toFixed(3);
   if (playerGiftCollisionX && playerGiftCollisionY) {
-    result.innerHTML = "You level up!";
     level++;
+    moveX = 0;
+    moveY = 0;
     startGame();
   }
   const bombsCollision = bombsPositions.find((elem) => {
@@ -102,26 +113,29 @@ function movePlayer() {
     return collisionX && collisionY;
   });
   if (bombsCollision) {
+    moveX = 0;
+    moveY = 0;
     result.innerHTML = "Damn, you failed!!";
     levelFailed();
   }
-
   context.fillText(emojis["PLAYER"], playerPosition.x, playerPosition.y);
 }
 
 function gameWin() {
-  clearInterval(timeInterval);
   const recordTime = localStorage.getItem("recordTime");
   const playerTime = Date.now() - timeStart;
   if (!recordTime) {
+    clearInterval(timeInterval);
     localStorage.setItem("recordTime", playerTime);
     result.innerHTML =
       "Oh! I see, it is your first time, try to beat your mark!";
   } else {
     if (recordTime > playerTime) {
+      clearInterval(timeInterval);
       localStorage.setItem("recordTime", playerTime);
       result.innerHTML = `Congrats, your time is ${playerTime}, it is a new record! Amazing!!`;
-    } else {
+    } else if (recordTime <= playerTime) {
+      clearInterval(timeInterval);
       result.innerHTML =
         "You are fast but not so fast! Keep trying to break a record.";
     }
@@ -161,31 +175,43 @@ buttonDown.addEventListener("click", moveDown);
 window.addEventListener("keydown", moveByKeys);
 
 function moveUp() {
-  playerPosition.y - elementsSize <= 0
-    ? console.log("OUT")
-    : (playerPosition.y = +(playerPosition.y - elementsSize));
-  startGame();
+  if (+playerPosition.y.toFixed(3) - elementsSize <= 0) {
+    console.log("OUT");
+  } else {
+    moveY--;
+    playerPosition.y -= elementsSize;
+    startGame();
+  }
 }
 
 function moveLeft() {
-  playerPosition.x - elementsSize <= 0
-    ? console.log("OUT")
-    : (playerPosition.x = +(playerPosition.x - elementsSize));
-  startGame();
+  if (+playerPosition.x.toFixed(3) - elementsSize <= 0) {
+    console.log("OUT");
+  } else {
+    moveX--;
+    playerPosition.x -= elementsSize;
+    startGame();
+  }
 }
 
 function moveRight() {
-  playerPosition.x + elementsSize > canvasSize
-    ? console.log("OUT")
-    : (playerPosition.x = +(playerPosition.x + elementsSize));
-  startGame();
+  if (+playerPosition.x.toFixed(3) + elementsSize > canvasSize) {
+    console.log("OUT");
+  } else {
+    moveX++;
+    playerPosition.x += elementsSize;
+    startGame();
+  }
 }
 
 function moveDown() {
-  playerPosition.y + elementsSize > canvasSize
-    ? console.log("OUT")
-    : (playerPosition.y = +(playerPosition.y + elementsSize));
-  startGame();
+  if (+playerPosition.y.toFixed(3) + elementsSize > canvasSize) {
+    console.log("OUT");
+  } else {
+    moveY++;
+    playerPosition.y += elementsSize;
+    startGame();
+  }
 }
 
 function moveByKeys(event) {
